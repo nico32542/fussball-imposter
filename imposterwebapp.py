@@ -20,8 +20,44 @@ if 'show_card' not in st.session_state:
     st.session_state.show_card = False
 if 'anzahlimposter' not in st.session_state:
     st.session_state.anzahlimposter = 1
+if 'kategorie' not in st.session_state:
+    st.session_state.kategorie = None  # Neu: Kategorie speichern
 
-# Fußballer-Liste (gekürzt)
+# Prominente-Liste
+prominente = [
+    "Cristiano Ronaldo", "Lionel Messi", "The Rock", "Will Smith", "Elon Musk",
+    "MrBeast", "PewDiePie", "Logan Paul", "Jake Paul", "Kanye West",
+    "Taylor Swift", "Justin Bieber", "Kim Kardashian", "Drake", "LeBron James",
+    "Neymar Jr.", "Michael Jordan", "Barack Obama", "Donald Trump", "Andrew Tate",
+    "Snoop Dogg", "Eminem", "Rihanna", "Beyoncé",
+    "Kylian Mbappé", "Erling Haaland", "Jude Bellingham", "Vinicius Jr.", "Robert Lewandowski",
+    "Mohamed Salah", "Karim Benzema", "Max Verstappen", "Lewis Hamilton",
+    "Conor McGregor", "Israel Adesanya", "Tyson Fury", "Floyd Mayweather",
+    "John Cena", "Shaquille O’Neal", "Stephen Curry", "Giannis Antetokounmpo",
+    "MontanaBlack", "Trymacs", "Knossi", "EliasN97", "Papaplatte",
+    "Inscope21", "unsympathischTV", "Amar", "Rezo", "iShowSpeed",
+    "Kai Cenat", "Sidemen", "Dream", "Günter Jauch", 
+    "Pokimane", "Khaby Lame", "Herr Anwalt",
+    "Younes Zarou", "Luciano", "Apache 207", "RIN", "Ufo361",
+    "Shirin David", "Kollegah", "Farid Bang", "Gzuz", "Bonez MC",
+    "Capital Bra", "Sido", "Cro", "Bausa", "Nina Chuba",
+    "Travis Scott", "The Weeknd", "Billie Eilish", "Doja Cat", "21 Savage",
+    "Metro Boomin", "Playboi Carti", "Lil Uzi Vert", "Lil Nas X", "Post Malone",
+    "Olivia Rodrigo", "SZA", "Ice Spice", "BTS",
+    "XXXTentacion", "Juice WRLD", "Pop Smoke", "Tom Holland", "Zendaya",
+    "Jenna Ortega", "Millie Bobby Brown", "Robert Downey Jr.",
+    "Ryan Reynolds", "Keanu Reeves", "Leonardo DiCaprio",
+    "Johnny Depp", "Adam Sandler", "Cillian Murphy", "Florence Pugh", "Margot Robbie",
+    "Denzel Washington", "Morgan Freeman", "Kevin Hart",
+    "SpongeBob Schwammkopf", "Patrick Star", "Thanos", "Iron Man", "Spider-Man",
+    "Batman", "Joker", "Deadpool", "Homer Simpson", "Bart Simpson",
+    "Darth Vader", "Yoda", "Shrek", "Lightning McQueen",
+    "Buzz Lightyear", "Minions", "Gru",
+    "Naruto", "Ash Ketchum", "Pikachu"
+]
+
+
+# Fußballer-Liste 
 fussballer = [
     "Lionel Messi", "Cristiano Ronaldo", "Kylian Mbappé", "Neymar Jr.",
     "Erling Haaland", "Kevin De Bruyne", "Mohamed Salah", "Robert Lewandowski",
@@ -43,7 +79,7 @@ fussballer = [
     "Désiré Doué", "Khvicha Kvaratskhelia", "Xavi Simons", "Alejandro Garnacho",
     "Nico Williams", "Endrick", "Arda Güler", "Viktor Gyökeres",
     "Cole Palmer", "Jeremy Doku", "Kevin De Bruyne", "Frimpong",
-    "Kimmich", "Rashford",
+    "Kimmich", "Rashford", "Florian Wirtz", "Deniz Undav",
     # Legenden
     "Pelé", "Diego Maradona", "Zinedine Zidane", "Jay-Jay Okocha",
     "Ronaldinho", "Ronaldo Nazário", "David Beckham", "Thierry Henry",
@@ -51,14 +87,26 @@ fussballer = [
     "Didier Drogba", "Fernando Torres"
 ]
 
-st.title("⚽ Imposter-Spiel mit Fußballern")
+st.title("⚽Imposter⭐")
+
+# Kategorie-Auswahl (nur wenn Setup noch nicht fertig)
+if not st.session_state.setup_done:
+    kategorie = st.selectbox("Wähle deine Kategorie", options=["Prominente", "Fußballer"])
+    st.session_state.kategorie = kategorie
+
+# Abhängig von Auswahl die Liste setzen
+if st.session_state.kategorie == "Prominente":
+    aktive_liste = prominente
+elif st.session_state.kategorie == "Fußballer":
+    aktive_liste = fussballer
+else:
+    aktive_liste = prominente  # Default
 
 # --- SPIELERANZAHL ÄNDERN UND IMPOSER ANZAHL AUSWÄHLEN ---
 if st.session_state.setup_done:
     col1, col2 = st.columns(2)
     with col1:
         if st.button("Spiel neu starten"):
-            # Reset Spiel-Variablen, aber Spieler behalten
             st.session_state.imposter = random.randint(0, len(st.session_state.spieler) - 1)
             if st.session_state.anzahlimposter == 2:
                 st.session_state.imposter2 = random.randint(0, len(st.session_state.spieler) - 1)
@@ -66,12 +114,12 @@ if st.session_state.setup_done:
                     st.session_state.imposter2 = random.randint(0, len(st.session_state.spieler) - 1)
             else:
                 st.session_state.imposter2 = st.session_state.imposter
-            st.session_state.baller = random.choice(fussballer)
+            st.session_state.baller = random.choice(aktive_liste)
             st.session_state.current_player = 0
             st.session_state.show_card = False
             st.rerun()
     with col2:
-        if st.button("Spieleranzahl ändern"):
+        if st.button("Spielmodus ändern"):
             st.session_state.setup_done = False
             st.rerun()
 
@@ -99,7 +147,7 @@ if not st.session_state.setup_done:
         else:
             st.session_state.imposter2 = st.session_state.imposter
 
-        st.session_state.baller = random.choice(fussballer)
+        st.session_state.baller = random.choice(aktive_liste)
         st.session_state.current_player = 0
         st.session_state.show_card = False
         st.session_state.setup_done = True
